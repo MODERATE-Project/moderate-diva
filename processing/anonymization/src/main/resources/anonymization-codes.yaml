@@ -1,0 +1,13 @@
+name: "parmalat-anonymization"
+rules:
+  - name: "suppression"
+    feature: "equipmentType"
+  - name: "suppression"
+    feature: "attribute"
+  - name: "suppression"
+    feature: "attributeType"
+  - name: "normalization"
+    feature: "attributeValue"
+    specs:
+      mean: 1574.5
+      std: 155.3

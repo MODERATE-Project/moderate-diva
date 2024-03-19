@@ -1,0 +1,173 @@
+version: "3.9"
+
+x-trust: &TRUSTSTORE_VOLUME
+   '/home/nicolo/Desktop/truststore.jks:/kafka/truststore.jks:ro'
+
+x-kafka: &KAFKA_CONFIG
+   KAFKA_BOOTSTRAP_SERVERS: "maestri.ismb.it:9091,maestri.ismb.it:9092,maestri.ismb.it:9093"
+   KAFKA_SASL_USERNAME: "knowledge"
+   KAFKA_SASL_PASSWORD: "knowLedge_WP3"
+   KAFKA_TRUSTSTORE_LOCATION: "/kafka/truststore.jks"
+   KAFKA_TRUSTSTORE_PASSWORD: "maestri"
+   KAFKA_ENDPOINT_IDENTIFICATION: ""
+
+x-mqtt: &MQTT_CONFIG
+   MQTT_URI: "ssl://maestri.ismb.it:8883"
+   MQTT_CLIENT_ID: "parmalat-connector"
+   MQTT_USERNAME: "maestri"
+   MQTT_PASSWORD: "maestri"
+   MQTT_QOS: 0
+   MQTT_INPUT_TOPIC: "shopfloor/parmalat-01/RawData/historicalMeasurement/#"
+
+x-part0: &HIST_PARTITION
+   '0'
+x-part1: &FLOW_PARTITION
+   '1'
+
+services:
+   connector:
+      container_name: parmalat-connector
+      image: maestri.ismb.it:5050/dq-core/mqtt-connector:1.0
+      build:
+         context: ./connector/mqtt/build/libs
+         dockerfile: ../../src/main/docker/Dockerfile
+      environment:
+         <<: [*MQTT_CONFIG, *KAFKA_CONFIG]
+         KAFKA_GROUP_ID: parmalat-connector
+         SAMPLE_TOPIC: connector
+         SAMPLE_STATE: VALID,ANONYMIZED,AGGREGATED
+      volumes:
+      - *TRUSTSTORE_VOLUME
+
+   # in-converter:
+   #    container_name: parmalat-in-converter
+   #    image: maestri.ismb.it:5050/dq-core/in-converter:1.0
+   #    build:
+   #       context: ./processing/preprocessing/converter/inbound/build/libs
+   #       dockerfile: ../../src/main/docker/Dockerfile
+   #    environment:
+   #       <<: *KAFKA_CONFIG
+   #       KAFKA_GROUP_ID: parmalat-in-converter
+   #       DATASET_NAME: equipmentattributes
+   #       SAMPLE_TOPIC: connector
+   #       SAMPLE_PARTITION: *HIST_PARTITION
+   #       PREPROCESSED_TOPIC: sample
+   #    volumes:
+   #    - *TRUSTSTORE_VOLUME
+
+   # out-converter:
+   #    container_name: parmalat-out-converter
+   #    image: maestri.ismb.it:5050/dq-core/out-converter:1.0
+   #    build:
+   #       context: ./processing/preprocessing/converter/outbound/build/libs
+   #       dockerfile: ../../src/main/docker/Dockerfile
+   #    environment:
+   #       <<: *KAFKA_CONFIG
+   #       KAFKA_GROUP_ID: parmalat-out-converter
+   #       DATASET_NAME: equipmentattributes
+   #       SAMPLE_TOPIC: sample
+   #       SAMPLE_PARTITION: *HIST_PARTITION
+   #       PREPROCESSED_TOPIC: connector
+   #    volumes:
+   #    - *TRUSTSTORE_VOLUME
+
+   converter:
+     container_name: parmalat-converter
+     image: maestri.ismb.it:5050/dq-core/converter:1.0
+     build:
+        context: ./converter/build/libs
+        dockerfile: ../../src/main/docker/Dockerfile
+     environment:
+        <<: *KAFKA_CONFIG
+        KAFKA_GROUP_ID: parmalat-converter
+        DATASET_NAMES: equipmentattributes,codes
+        CONNECTOR_TOPIC: connector
+        SAMPLE_TOPIC: sample
+        SAMPLE_PARTITION: *HIST_PARTITION
+        INPUT_STATE: "NEW"
+        OUTPUT_STATE: "VALID,ANONYMIZED"
+     volumes:
+     - *TRUSTSTORE_VOLUME
+
+   validation:
+      container_name: parmalat-validator
+      image: maestri.ismb.it:5050/dq-core/validator:1.0
+      build:
+         context: ./validator/build/libs
+         dockerfile: ../../src/main/docker/Dockerfile
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: parmalat-validator
+         DATASET_NAME: equipmentattributes
+         SAMPLE_TOPIC: sample
+         SAMPLE_PARTITION: *HIST_PARTITION
+         VALIDATION_TOPIC: validation
+         CONFIG_FILE: /config/validation.yaml
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "/home/nicolo/git/dq-core/validator/src/main/resources/validation.yaml:/config/validation.yaml:ro"
+
+   validation-codes:
+      container_name: parmalat-validator-codes
+      image: maestri.ismb.it:5050/dq-core/validator:1.0
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: parmalat-validator-codes
+         DATASET_NAME: codes
+         SAMPLE_TOPIC: sample
+         SAMPLE_PARTITION: *HIST_PARTITION
+         VALIDATION_TOPIC: validation
+         CONFIG_FILE: /config/validation.yaml
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "/home/nicolo/git/dq-core/validator/src/main/resources/validation-codes.yaml:/config/validation.yaml:ro"
+   
+   anonymization:
+      container_name: parmalat-anonymization
+      image: maestri.ismb.it:5050/dq-core/anonymization:1.0
+      build:
+         context: ./processing/anonymization/build/libs
+         dockerfile: ../../src/main/docker/Dockerfile
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: parmalat-anonymization
+         DATASET_NAME: equipmentattributes
+         SAMPLE_TOPIC: sample
+         SAMPLE_PARTITION: *HIST_PARTITION
+         ANONYMIZED_TOPIC: sample
+         CONFIG_FILE: /config/anonymization.yaml
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "/home/nicolo/git/dq-core/processing/anonymization/src/main/resources/anonymization.yaml:/config/anonymization.yaml:ro"
+
+   anonymization-codes:
+      container_name: parmalat-anonymization-codes
+      image: maestri.ismb.it:5050/dq-core/anonymization:1.0
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: parmalat-anonymization-codes
+         DATASET_NAME: codes
+         SAMPLE_TOPIC: sample
+         SAMPLE_PARTITION: *HIST_PARTITION
+         ANONYMIZED_TOPIC: sample
+         CONFIG_FILE: /config/anonymization.yaml
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "/home/nicolo/git/dq-core/processing/anonymization/src/main/resources/anonymization-codes.yaml:/config/anonymization.yaml:ro"
+
+   aggregator:
+      container_name: parmalat-aggregator
+      image: maestri.ismb.it:5050/dq-core/aggregator:1.0
+      build:
+         context: ./aggregator/build/libs
+         dockerfile: ../../src/main/docker/Dockerfile
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: parmalat-aggregator
+         DATASET_NAMES: equipmentattributes,codes
+         SAMPLE_TOPIC: sample
+         SAMPLE_PARTITION: *HIST_PARTITION
+         CONFIG_FILE: /config/aggregation.yaml
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "/home/nicolo/git/dq-core/aggregator/src/main/resources/aggregation.yaml:/config/aggregation.yaml:ro"

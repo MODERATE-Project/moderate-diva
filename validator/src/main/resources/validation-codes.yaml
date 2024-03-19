@@ -1,0 +1,7 @@
+name: "parmalat-validator-codes"
+rules:
+  - name: "strlen"
+    feature: "id"
+    specs:
+      lenType: UPPER
+      len: 2

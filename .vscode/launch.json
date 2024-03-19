@@ -1,0 +1,57 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-StandardAggregatorApplication<aggregator>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.linksfoundation.dq.core.aggregator.standard.StandardAggregatorApplication",
+            "projectName": "aggregator",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=37167 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=aggregator"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MQTTConnectorApplication<mqtt>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.linksfoundation.dq.core.connector.mqtt.MQTTConnectorApplication",
+            "projectName": "mqtt",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=36167 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=mqtt"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-StandardAnonymizationApplication<anonymization>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.linksfoundation.dq.core.processing.anonymization.standard.StandardAnonymizationApplication",
+            "projectName": "anonymization",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=45515 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=anonymization"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-StandardValidatorApplication<validator>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.linksfoundation.dq.core.validator.standard.StandardValidatorApplication",
+            "projectName": "validator",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ConverterApplication<inbound>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.linksfoundations.dq.core.process.preprocessing.inbound.ConverterApplication",
+            "projectName": "inbound",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

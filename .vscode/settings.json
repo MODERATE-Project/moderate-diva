@@ -1,0 +1,7 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cSpell.words": [
+        "Pseudonymization"
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
