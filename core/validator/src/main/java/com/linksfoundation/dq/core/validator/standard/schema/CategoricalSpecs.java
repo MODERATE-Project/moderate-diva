@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Data Format used for specifying the possible acceptable values for a variable.
+*/
 @Getter
 @Builder
 @NoArgsConstructor

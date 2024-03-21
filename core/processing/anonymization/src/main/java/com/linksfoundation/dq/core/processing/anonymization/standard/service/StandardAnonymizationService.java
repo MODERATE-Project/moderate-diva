@@ -3,7 +3,7 @@ package com.linksfoundation.dq.core.processing.anonymization.standard.service;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Comparators;
+
 import com.linksfoundation.dq.api.model.BoolArray;
 import com.linksfoundation.dq.api.model.FloatArray;
 import com.linksfoundation.dq.api.model.Sample;
@@ -35,6 +35,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class represents a StandardAnonymizationService that extends the AnonymizationService.
+ * It provides methods to anonymize samples based on specified rules.
+*/
 @Service
 @Slf4j
 public class StandardAnonymizationService extends AnonymizationService {
@@ -50,6 +54,12 @@ public class StandardAnonymizationService extends AnonymizationService {
         super(manager);
     }
 
+    /**
+     * Anonymizes the provided sample based on the configured rules.
+     *
+     * @param sample The sample to be anonymized.
+     * @return A Flux emitting the anonymized sample.
+    */
     @Override
     public Flux<Sample> anonymize(Sample sample) {
         ConfigYaml yaml = this.parseYamlFile(configFile);
@@ -82,6 +92,13 @@ public class StandardAnonymizationService extends AnonymizationService {
             .build());
     }
 
+    /**
+     * This method parses a YAML configuration file and returns a ConfigYaml object.
+     *
+     * @param path The path to the YAML configuration file.
+     *
+     * @return A ConfigYaml object that represents the configuration defined in the YAML file.
+    */
     protected ConfigYaml parseYamlFile(String path) {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
@@ -94,6 +111,14 @@ public class StandardAnonymizationService extends AnonymizationService {
         }
     }
 
+    /**
+     * This method parses a YAML object and returns an instance of a specified class.
+     *
+     * @param specs The YAML object to be parsed. This is an instance of the Object class.
+     * @param schema The class that the YAML object should be mapped to.
+     *
+     * @return An instance of the specified class that represents the parsed YAML object.
+    */
     protected Object parseYamlObject(Object specs, Class<? extends Specs> schema) {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.ALWAYS);
@@ -106,6 +131,14 @@ public class StandardAnonymizationService extends AnonymizationService {
         }
     }
 
+    /**
+     * Applies rotation anonymization to the sample.
+     *
+     * @param sample The sample to anonymize.
+     * @param feature The feature to apply rotation on.
+     * @param specs The rotation specifications.
+     * @return The anonymized sample.
+     */
     protected Sample applyRotation(Sample sample, String feature, RotationSpecs specs) {
         List<Float> newValues1 = new LinkedList<>();
         List<Float> newValues2 = new LinkedList<>();
@@ -142,6 +175,14 @@ public class StandardAnonymizationService extends AnonymizationService {
         }
     }
 
+    /**
+     * Applies normalization anonymization to the sample.
+     *
+     * @param sample The sample to anonymize.
+     * @param feature The feature to apply normalization on.
+     * @param specs The normalization specifications.
+     * @return The anonymized sample.
+    */
     protected Sample applyNormalization(Sample sample, String feature, NormalizationSpecs specs) {
         List<Float> newValues = new LinkedList<>();
 
@@ -161,6 +202,13 @@ public class StandardAnonymizationService extends AnonymizationService {
         }
     }
 
+    /**
+     * Applies suppression anonymization to the sample.
+     *
+     * @param sample The sample to anonymize.
+     * @param feature The feature to suppress.
+     * @return The anonymized sample.
+    */
     protected Sample applySuppression(Sample sample, String feature) {
         
         if (sample.getFloatDataMap().containsKey(feature)) {
@@ -181,6 +229,14 @@ public class StandardAnonymizationService extends AnonymizationService {
         }
     }
 
+    /**
+     * Applies pseudonymization anonymization to the sample.
+     *
+     * @param sample The sample to anonymize.
+     * @param feature The feature to apply pseudonymization on.
+     * @param specs The pseudonymization specifications.
+     * @return The anonymized sample.
+    */
     protected Sample applyPseudonymization(Sample sample, String feature, PseudonymizationSpecs specs) {
 
         List<String> featureNames = new LinkedList<>();
@@ -192,6 +248,10 @@ public class StandardAnonymizationService extends AnonymizationService {
         List<String> features = List.of(feature);
         if (feature.equals("*")) {
             features = featureNames;
+        }
+        if (feature.startsWith("[")) {
+            feature = feature.substring(1, feature.length());
+            features = List.of(feature.split(","));
         }
 
         Sample newSample = Sample.newBuilder(sample).build();
@@ -225,11 +285,14 @@ public class StandardAnonymizationService extends AnonymizationService {
                         .toList();
                     newData = StringArray.newBuilder().addAllElement(values).build();
                 }
-
+                
                 newSample = Sample.newBuilder(newSample)
                     .putStringData(newName, newData)
-                    .removeStringData(field)
                     .build();
+
+                if (!newName.equals(field)) {
+                    newSample = Sample.newBuilder(newSample).removeStringData(field).build();
+                }
 
             } else if (newSample.getBoolDataMap().containsKey(field)) {
                 String newName = field;
@@ -257,6 +320,8 @@ public class StandardAnonymizationService extends AnonymizationService {
     }
 
     private static String bytesToHex(byte[] hash) {
+        // Convert bytes to hexadecimal string
+
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
@@ -270,6 +335,8 @@ public class StandardAnonymizationService extends AnonymizationService {
     }
 
     private String createHash(String name, String instance) {
+        // Create hash value for the given name
+
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(instance);
@@ -282,6 +349,8 @@ public class StandardAnonymizationService extends AnonymizationService {
     }
 
     private String featureNotFound(String feature, String rule) {
+        // Handle feature not found error message
+        
         return String.format("Feature %s not found for anonymization using rule %s", feature, rule);
     }
 }

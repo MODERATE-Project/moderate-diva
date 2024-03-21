@@ -29,4 +29,6 @@ ENV SAMPLE_PARTITION=""
 ENV SAMPLE_STATE=""
 ENV DATASET_NAME=""
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/converter-1.0-SNAPSHOT.jar"]
+EXPOSE 9010
+
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app/converter-1.0-SNAPSHOT.jar"]

@@ -12,6 +12,10 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class represents a StandardConverterManager that extends the ConverterManager.
+ * It is responsible for managing the data format conversion process using Kafka messaging.
+*/
 @Service
 @Slf4j
 @Import({ConnectorConsumerConfig.class, SampleConsumerConfig.class, KafkaProducerConfig.class})

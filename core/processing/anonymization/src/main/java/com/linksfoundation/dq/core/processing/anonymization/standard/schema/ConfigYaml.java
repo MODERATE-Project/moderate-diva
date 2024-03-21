@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
+/**
+ * Data Format used for the configuration file.
+*/
 @Getter
 @Builder
 @NoArgsConstructor

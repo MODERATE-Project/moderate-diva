@@ -9,6 +9,10 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class represents a StandardValidatorManager that extends the ValidationManager.
+ * It is responsible for managing the validation process using Kafka messaging.
+*/
 @Service
 @Slf4j
 @Import({SampleConsumerConfig.class, KafkaProducerConfig.class})

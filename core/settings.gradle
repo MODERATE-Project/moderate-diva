@@ -19,4 +19,3 @@ findProject(':processing:preprocessing')?.name = 'preprocessing'
 //findProject(':processing:preprocessing:converter:outbound')?.name = 'outbound'
 include 'processing:anonymization'
 findProject(':processing:anonymization')?.name = 'anonymization'
-

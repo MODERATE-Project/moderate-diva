@@ -8,6 +8,9 @@ import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
 import java.io.IOException;
 
+/**
+ * Serialized and Deserializer for Protocol Buffer messages.
+*/
 public class ProtobufSerializer<T extends MessageLite> implements Serializer<T> {
 
     private final Parser<T> parser;

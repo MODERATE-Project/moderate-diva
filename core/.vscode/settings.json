@@ -1,6 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
     "cSpell.words": [
+        "linksfoundation",
         "Pseudonymization"
     ],
     "java.configuration.updateBuildConfiguration": "automatic"

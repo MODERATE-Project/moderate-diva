@@ -18,6 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
+/**
+ * This class represents an InboundMQTTConnector service that extends the InboundConnector. 
+ * It facilitates the reception of MQTT messages and creates new data quality samples from them.
+ */
 @Service
 @Slf4j
 public class InboundMQTTConnector extends InboundConnector implements CommandLineRunner, MqttCallback {
@@ -41,6 +45,11 @@ public class InboundMQTTConnector extends InboundConnector implements CommandLin
         super(manager);
     }
 
+    /**
+     * Imports samples from MQTT messages and returns them as a Flux.
+     *
+     * @return A Flux emitting imported samples.
+    */
     @Override
     protected Flux<Sample> importSamples() {
         return samplesOut
@@ -49,6 +58,12 @@ public class InboundMQTTConnector extends InboundConnector implements CommandLin
                 .doOnNext(sample -> this.manager.getSamplesIn().emitNext(sample, Sinks.EmitFailureHandler.FAIL_FAST));
     }
 
+    /**
+     * Parses the MQTT message into a Sample object.
+     *
+     * @param message The MQTT message to parse.
+     * @return A Flux emitting the parsed Sample object.
+    */
     private Flux<Sample> parseMQTTMessage(MQTTSample message) {
 
         Sample sample = Sample.newBuilder()
@@ -67,6 +82,12 @@ public class InboundMQTTConnector extends InboundConnector implements CommandLin
         return Flux.fromIterable(List.of(sample));
     }
 
+    /**
+     * Runs the InboundMQTTConnector service.
+     *
+     * @param args The command-line arguments passed to the application.
+     * @throws MQTTClientNotConnected if the MQTT client fails to connect.
+    */
     @Override
     public void run(String... args) {
 
@@ -78,9 +99,12 @@ public class InboundMQTTConnector extends InboundConnector implements CommandLin
                 options.setUserName(mqttUsername);
                 options.setPassword(mqttPassword.toCharArray());
             }
+            
+            options.setCleanSession(false);
             mqttClient.connect(options);
 
             mqttClient.setCallback(this);
+            
             mqttClient.subscribe(mqttTopic, Integer.parseInt(mqttQos));
 
         } catch (MqttException e) {
@@ -94,6 +118,14 @@ public class InboundMQTTConnector extends InboundConnector implements CommandLin
     @Override
     public void connectionLost(Throwable cause) {}
 
+    /**
+     * Invoked when a message arrives from the MQTT broker.
+     * The received message is sent to the manager through the samplesOut queue.
+     * 
+     * @param topic   The topic on which the message was received.
+     * @param message The MQTT message received.
+     * @throws Exception if an error occurs while processing the message.
+    */
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         MQTTSample sample = MQTTSample

@@ -10,7 +10,6 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 public class DataCollectionModel {
     String timestamp;
-    String originalTimestamp;
     String sourceType;
     String sourceID;
     String infoType;
