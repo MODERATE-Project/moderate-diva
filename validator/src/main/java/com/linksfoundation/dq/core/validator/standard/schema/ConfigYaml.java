@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Format used for the configuration file.
+*/
 import java.util.List;
 @Getter
 @Builder

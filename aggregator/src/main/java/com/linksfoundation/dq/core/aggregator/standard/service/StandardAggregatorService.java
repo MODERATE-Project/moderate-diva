@@ -43,6 +43,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * This class represents a StandardAggregatorService that extends the AggregatorService.
+ * It executes the aggregation tasks received by the manager.
+ */
 @Service
 @Slf4j
 public class StandardAggregatorService extends AggregatorService implements CommandLineRunner{
@@ -58,6 +62,12 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         super(manager);
     }
 
+    /**
+     * Aggregate the given sample data and returns the aggregated result as a Flux.
+     *
+     * @param sample The sample data to aggregate.
+     * @return A Flux emitting the aggregated samples.
+    */
     public Flux<Sample> aggregate(Sample sample) {
         String name = sample.getDataset();
         if (datasetsConfig.containsKey(name)) {
@@ -81,6 +91,13 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         }
     }
 
+    /**
+     * This method parses a YAML configuration file and returns a ConfigYaml object.
+     *
+     * @param path The path to the YAML configuration file.
+     *
+     * @return A ConfigYaml object that represents the configuration defined in the YAML file.
+    */
     protected ConfigYaml parseYamlFile(String path) {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
@@ -93,6 +110,14 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         }
     }
 
+    /**
+     * This method parses a YAML object and returns an instance of a specified class.
+     *
+     * @param specs The YAML object to be parsed. This is an instance of the Object class.
+     * @param schema The class that the YAML object should be mapped to.
+     *
+     * @return An instance of the specified class that represents the parsed YAML object.
+    */
     protected Object parseYamlObject(Object specs, Class<? extends Specs> schema) {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.ALWAYS);
@@ -105,6 +130,12 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         }
     }
 
+    /**
+     * Adds the given sample to the map for the specified dataset.
+     *
+     * @param dataset The dataset to which the sample belongs.
+     * @param sample The sample to add to the map.
+    */
     private void addSampleToMap(Dataset dataset, Sample sample) {
         String key = getKey(dataset.getKey(), sample);
 
@@ -123,6 +154,13 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         }
     }
 
+    /**
+     * Return the value of a map based on the specific key.
+     *
+     * @param key The key of the dataset.
+     * @param sample The sample for which the key is checked.
+     * @return The value associated for that key.
+    */
     private String getKey(String key, Sample sample) {
         if (sample.getBoolDataMap().containsKey(key)) {
             return sample.getBoolDataMap().get(key).toString();
@@ -137,6 +175,12 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         return "";
     }
 
+    /**
+     * Aggregates the given list of samples and returns the aggregated result as a Flux.
+     *
+     * @param samples The list of samples to aggregate.
+     * @return A Flux emitting the aggregated samples.
+    */
     private Flux<Sample> aggregateSamples(List<Sample> samples) {
         Map<String, FloatArray> totalFloatData = new HashMap<>();
         Map<String, BoolArray> totalBoolData = new HashMap<>();
@@ -213,6 +257,11 @@ public class StandardAggregatorService extends AggregatorService implements Comm
         );
     }
     
+    /**
+     * Executes the service logic when the application starts.
+     *
+     * @param args The command-line arguments passed to the application.
+    */
     @Override
     public void run (String ...args) {
         ConfigYaml yaml = this.parseYamlFile(configFile);

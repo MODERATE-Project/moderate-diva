@@ -9,6 +9,10 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class represents a StandardAnonymizationManager that extends the AnonymizationManager.
+ * It is responsible for managing the anonymization process using Kafka messaging.
+*/
 @Service
 @Slf4j
 @Import({SampleConsumerConfig.class, KafkaProducerConfig.class})

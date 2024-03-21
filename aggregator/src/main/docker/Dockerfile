@@ -29,4 +29,4 @@ ENV SAMPLE_STATE="ANONYMIZED"
 ENV DATASET_NAMES=""
 ENV CONFIG_FILE=""
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/aggregator-1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app/aggregator-1.0-SNAPSHOT.jar"]

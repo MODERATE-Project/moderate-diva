@@ -14,6 +14,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This class represents an OutboundMQTTConnector service that extends the OutboundConnector.
+ * It facilitates the export of data quality samples via MQTT.
+*/
 @Service
 @Slf4j
 public class OutboundMQTTConnector extends OutboundConnector implements CommandLineRunner {
@@ -34,6 +38,11 @@ public class OutboundMQTTConnector extends OutboundConnector implements CommandL
         super(manager);
     }
 
+    /**
+     * Exports the given sample via MQTT.
+     *
+     * @param sample The sample to export.
+    */
     @Override
     public void exportSamples(Sample sample) {
         String topic = sample.getStringDataMap().get("topic").getElement(0);
@@ -50,6 +59,12 @@ public class OutboundMQTTConnector extends OutboundConnector implements CommandL
         }
     }
 
+    /**
+     * Runs the OutboundMQTTConnector service.
+     *
+     * @param args The command-line arguments passed to the application.
+     * @throws MQTTClientNotConnected if the MQTT client fails to connect.
+    */
     public void run(String... args) {
         try {
             mqttClient = new MqttClient(mqttUri, mqttClientId + "-out");

@@ -26,4 +26,4 @@ ENV MQTT_QOS=""
 ENV SAMPLE_TOPIC=""
 ENV SAMPLE_STATE=""
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/mqtt-1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app/mqtt-1.0-SNAPSHOT.jar"]

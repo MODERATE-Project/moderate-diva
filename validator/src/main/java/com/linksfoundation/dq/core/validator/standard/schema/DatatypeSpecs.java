@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Format used for specifying the data type of a variable.
+*/
 @Getter
 @Builder
 @NoArgsConstructor

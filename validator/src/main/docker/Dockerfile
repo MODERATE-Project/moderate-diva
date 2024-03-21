@@ -26,7 +26,7 @@ ENV MQTT_QOS=""
 ENV SAMPLE_TOPIC=""
 ENV SAMPLE_PARTITION=""
 ENV VALIDATION_TOPIC=""
-ENV DATASET_NAME=""
+ENV DATASET_NAMES=""
 ENV CONFIG_FILE=""
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/validator-1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app/validator-1.0-SNAPSHOT.jar"]

@@ -1,7 +1,0 @@
-name: "parmalat-aggregator"
-datasets:
-- name: "equipmentattributes"
-  key: "codEquipment"
-- name: "codes"
-  key: "id"
-  expiration: "25s"

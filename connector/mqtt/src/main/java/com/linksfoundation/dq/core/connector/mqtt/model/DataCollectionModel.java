@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 
+/**
+ * This is the model adopted by the messages received using the connector.
+*/
 @Builder
 @Jacksonized
 @Getter

@@ -42,6 +42,14 @@ public class StandardValidatorService extends ValidationService {
         super(manager);
     }
 
+    /**
+     * This method validates a given sample based on a series of validations.
+     *
+     * @param sample The sample to be validated. This is an instance of the Sample class.
+     * @param validations A Flux stream of Validation objects that are to be applied to the sample.
+     *
+     * @return A Mono of the Sample object after validation. The state of the sample is set to FAIL if any of the validations fail. If all validations pass, the state of the sample is set to VALID.
+    */
     public Mono<Sample> validate(Sample sample, Flux<Validation> validations) {
         return validations
                 .filter(validation -> validation.getResult() == Validation.Result.FAIL)
@@ -58,6 +66,29 @@ public class StandardValidatorService extends ValidationService {
                 });
     }
 
+    /**
+     * This method checks a given sample based on a set of rules defined in a YAML configuration file.
+     *
+     * @param sample The sample to be checked. This is an instance of the Sample class.
+     *
+     * @return A Flux stream of Validation objects that represent the result of each check on the sample.
+     *
+     * The method works as follows:
+     * - It parses the YAML configuration file to get a list of rules.
+     * - For each rule, it determines the type of the rule and performs the corresponding check on the sample.
+     * - It adds the result of each check (a Mono of Validation) to a list.
+     * - Finally, it merges all the Monos in the list into a Flux stream and returns it.
+     *
+     * The checks performed are based on the type of the rule and can be one of the following:
+     * - Domain check
+     * - String length check
+     * - Data type check
+     * - Categorical check
+     * - Missing value check
+     * - Regular expression check
+     *
+     * If a rule type is not recognized, it throws a RuleNotRecognized exception.
+    */
     public Flux<Validation> check(Sample sample) {
         List<Mono<Validation>> checks = new LinkedList<>();
         ConfigYaml yaml = this.parseYamlFile(configFile);
@@ -94,6 +125,13 @@ public class StandardValidatorService extends ValidationService {
         return Flux.merge(checks);
     }
 
+    /**
+     * This method parses a YAML configuration file and returns a ConfigYaml object.
+     *
+     * @param path The path to the YAML configuration file.
+     *
+     * @return A ConfigYaml object that represents the configuration defined in the YAML file.
+    */
     protected ConfigYaml parseYamlFile(String path) {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
@@ -106,6 +144,14 @@ public class StandardValidatorService extends ValidationService {
         }
     }
 
+    /**
+     * This method parses a YAML object and returns an instance of a specified class.
+     *
+     * @param specs The YAML object to be parsed. This is an instance of the Object class.
+     * @param schema The class that the YAML object should be mapped to.
+     *
+     * @return An instance of the specified class that represents the parsed YAML object.
+    */
     protected Object parseYamlObject(Object specs, Class<? extends Specs> schema) {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.ALWAYS);
@@ -118,6 +164,24 @@ public class StandardValidatorService extends ValidationService {
         }
     }
 
+    /**
+     * This method checks if the values of a specific feature in a sample fall within a specified domain.
+     *
+     * @param sample The sample to be checked. This is an instance of the Sample class.
+     * @param name The name of the check.
+     * @param feature The feature in the sample to be checked.
+     * @param specs The specifications of the domain. This is an instance of the DomainSpecs class.
+     *
+     * @return A Mono of a Validation object that represents the result of the check.
+     *
+     * The method works as follows:
+     * - It checks if the sample contains the feature.
+     * - If the sample contains the feature, it gets the list of values of the feature.
+     * - For each value, it checks if it falls within the specified domain.
+     * - It adds the result of each check to a list.
+     * - It creates a Validation object with the results of the checks and returns it as a Mono.
+     * - If the sample does not contain the feature, it returns a Validation object with a failed check.
+    */
     protected Mono<Validation> checkDomain(Sample sample, String name, String feature, DomainSpecs specs) {
 
         List<Boolean> checks = new LinkedList<>();
@@ -137,12 +201,30 @@ public class StandardValidatorService extends ValidationService {
                 }
             }
 
-            return Mono.just(this.createValidation(sample.getTs(), name, DOMAIN_LABEL, checks));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, DOMAIN_LABEL, checks));
         } else {
-            return Mono.just(this.createValidation(sample.getTs(), name, DOMAIN_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, DOMAIN_LABEL, List.of(false)));
         }
     }
 
+    /**
+     * This method checks if the lengths of the string values of a specific feature in a sample meet a specified condition.
+     *
+     * @param sample The sample to be checked. This is an instance of the Sample class.
+     * @param name The name of the check.
+     * @param feature The feature in the sample to be checked.
+     * @param specs The specifications of the string length condition. This is an instance of the StrlenSpecs class.
+     *
+     * @return A Mono of a Validation object that represents the result of the check.
+     *
+     * The method works as follows:
+     * - It checks if the sample contains the feature.
+     * - If the sample contains the feature, it gets the list of string values of the feature.
+     * - For each value, it checks if its length meets the specified condition (EXACT, LOWER, or UPPER).
+     * - It adds the result of each check to a list.
+     * - It creates a Validation object with the results of the checks and returns it as a Mono.
+     * - If the sample does not contain the feature, it returns a Validation object with a failed check.
+    */
     protected Mono<Validation> checkStrlen(Sample sample, String name, String feature, StrlenSpecs specs) {
         List<Boolean> checks = new LinkedList<>();
 
@@ -156,12 +238,23 @@ public class StandardValidatorService extends ValidationService {
                 }
             }
 
-            return Mono.just(this.createValidation(sample.getTs(), name, STRLEN_LABEL, checks));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, STRLEN_LABEL, checks));
         } else {
-            return Mono.just(this.createValidation(sample.getTs(), name, STRLEN_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, STRLEN_LABEL, List.of(false)));
         }
     }
 
+    /**
+     * This method checks the datatype of a given feature in a sample against the expected datatype specified in the DatatypeSpecs.
+     *
+     * @param sample The Sample object which contains the data to be checked.
+     * @param name The name of the sample.
+     * @param feature The feature in the sample whose datatype needs to be checked.
+     * @param specs The DatatypeSpecs object which contains the expected datatype of the feature.
+     * @return A Mono<Validation> object. If the feature exists in the sample and its datatype matches the expected datatype, 
+     *         the Validation object will contain a list of true values. If the feature does not exist in the sample or its 
+     *         datatype does not match the expected datatype, the Validation object will contain a list with a single false value.
+    */
     protected Mono<Validation> checkDatatype(Sample sample, String name, String feature, DatatypeSpecs specs) {
         List<Boolean> checks = new LinkedList<>();
 
@@ -183,13 +276,24 @@ public class StandardValidatorService extends ValidationService {
                                 sample.getBoolDataMap().containsKey(feature));
             }
 
-            return Mono.just(this.createValidation(sample.getTs(), name, DATATYPE_LABEL, checks));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, DATATYPE_LABEL, checks));
         } else {
-            return Mono.just(this.createValidation(sample.getTs(), name, DATATYPE_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, DATATYPE_LABEL, List.of(false)));
         }
 
     }
 
+    /**
+     * This method checks if the string values of a specific feature in a sample are within a specified set of categories.
+     *
+     * @param sample The sample to be checked. This is an instance of the Sample class.
+     * @param name The name of the check.
+     * @param feature The feature in the sample to be checked.
+     * @param specs The specifications of the categorical condition. This is an instance of the CategoricalSpecs class.
+     *
+     * @return A Mono of a Validation object that represents the result of the check. If the feature does not exist in the sample or its 
+     *         category does not match the specified categories, the Validation object will contain a list with a single false value.
+    */
     protected Mono<Validation> checkCategorical(Sample sample, String name, String feature, CategoricalSpecs specs) {
         List<Boolean> checks = new LinkedList<>();
 
@@ -200,24 +304,46 @@ public class StandardValidatorService extends ValidationService {
                 checks.add(specs.getValues().contains(value));
             }
 
-            return Mono.just(this.createValidation(sample.getTs(), name, CATEGORICAL_LABEL, checks));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, CATEGORICAL_LABEL, checks));
         } else {
-            return Mono.just(this.createValidation(sample.getTs(), name, CATEGORICAL_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, CATEGORICAL_LABEL, List.of(false)));
         }
     }
 
+    /**
+     * This method checks if a given feature in a sample is missing.
+     *
+     * @param sample The Sample object which contains the data to be checked.
+     * @param name The name of the sample.
+     * @param feature The feature in the sample that needs to be checked for missing values.
+     * @return A Mono<Validation> object. If the feature exists in the sample and does not contain any NaN values, 
+     *         the Validation object will contain a list of true values. If the feature does not exist in the sample or contains NaN values, 
+     *         the Validation object will contain a list with a single false value.
+    */
     protected Mono<Validation> checkMissing(Sample sample, String name, String feature) {
         List<Boolean> checks = new LinkedList<>();
 
         if (sample.getFloatDataMap().containsKey(feature)) {
-            checks.add(sample.getFloatDataMap().get(feature).getElementList().contains(Float.NaN));
-            return Mono.just(this.createValidation(sample.getTs(), name, MISSING_LABEL, checks));
+            checks.add(!sample.getFloatDataMap().get(feature).getElementList().contains(Float.NaN));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, MISSING_LABEL, checks));
         }
         else {
-            return Mono.just(this.createValidation(sample.getTs(), name, MISSING_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, MISSING_LABEL, List.of(false)));
         }
     }
 
+    /**
+     * This method checks if the values of a given feature in a sample match a specified regular expression.
+     *
+     * @param sample The Sample object which contains the data to be checked.
+     * @param name The name of the sample.
+     * @param feature The feature in the sample whose values need to be checked against the regular expression.
+     * @param specs The RegexSpecs object which contains the regular expression to be matched.
+     * @return A Mono<Validation> object. For each value of the feature in the sample, if the value matches the regular expression, 
+     *         a true value is added to the list in the Validation object. If the value does not match the regular expression, 
+     *         a false value is added to the list. If the feature does not exist in the sample or the regular expression is invalid, 
+     *         the Validation object will contain a list with a single false value.
+    */
     protected Mono<Validation> checkRegex(Sample sample, String name, String feature, RegexSpecs specs) {
         List<Boolean> checks = new LinkedList<>();
         Pattern pattern;
@@ -237,18 +363,30 @@ public class StandardValidatorService extends ValidationService {
                 checks.add(matcher.matches());
             }
             
-            return Mono.just(this.createValidation(sample.getTs(), name, REGEX_LABEL, checks));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, REGEX_LABEL, checks));
         }
         else {
-            return Mono.just(this.createValidation(sample.getTs(), name, REGEX_LABEL, List.of(false)));
+            return Mono.just(this.createValidation(sample.getTs(), name, feature, REGEX_LABEL, List.of(false)));
         }
     }
 
-    protected Validation createValidation(long ts, String name, String type, List<Boolean> checks) {
+    /**
+     * This method creates a Validation object based on the provided parameters.
+     *
+     * @param ts The timestamp associated with the validation.
+     * @param name The name of the validator.
+     * @param feature The feature that was validated.
+     * @param type The type of validation performed.
+     * @param checks A list of Boolean values representing the results of individual checks performed during the validation.
+     * @return A Validation object. The result of the validation is set to Validation.Result.FAIL if any of the checks failed (i.e., if the list contains a false value), 
+     *         and Validation.Result.VALID otherwise.
+    */
+    protected Validation createValidation(long ts, String name, String feature, String type, List<Boolean> checks) {
         return Validation.newBuilder()
                 .setTs(ts)
                 .setValidator(name)
                 .setType(type)
+                .setFeature(feature)
                 .setOptional(Boolean.valueOf("false"))
                 .setResult(checks.contains(false) ? Validation.Result.FAIL : Validation.Result.VALID)
                 .build();

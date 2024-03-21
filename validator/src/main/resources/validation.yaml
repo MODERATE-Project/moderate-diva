@@ -1,6 +1,0 @@
-name: "parmalat-validator1"
-rules:
-  - name: "domain"
-    feature: "attributeValue"
-    specs:
-      min: 10000
