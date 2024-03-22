@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+   connector:
+      image: maestri.ismb.it:5050/dq-core/mqtt-connector:1.0
+      build:
+         context: ./connector/mqtt
+         dockerfile: ./Dockerfile
+         args:
+            DQ_API_TOKEN: "${DQ_API_TOKEN}"
+            DQ_CORE_TOKEN: "${DQ_CORE_TOKEN}"
+
+   converter:
+     image: maestri.ismb.it:5050/dq-core/converter:1.0
+     build:
+         context: ./converter
+         dockerfile: ./Dockerfile
+         args:
+            DQ_API_TOKEN: "${DQ_API_TOKEN}"
+            DQ_CORE_TOKEN: "${DQ_CORE_TOKEN}"
+
+   validation:
+      image: maestri.ismb.it:5050/dq-core/validator:1.0
+      build:
+         context: ./validator
+         dockerfile: ./Dockerfile
+         args:
+            DQ_API_TOKEN: "${DQ_API_TOKEN}"
+            DQ_CORE_TOKEN: "${DQ_CORE_TOKEN}"
+     
+   anonymization:
+      image: maestri.ismb.it:5050/dq-core/anonymization:1.0
+      build:
+         context: ./processing/anonymization
+         dockerfile: ./Dockerfile
+         args:
+            DQ_API_TOKEN: "${DQ_API_TOKEN}"
+            DQ_CORE_TOKEN: "${DQ_CORE_TOKEN}"
+
+   aggregator:
+      image: maestri.ismb.it:5050/dq-core/aggregator:1.0
+      build:
+         context: ./aggregator/
+         dockerfile: ./Dockerfile
+         args:
+            DQ_API_TOKEN: "${DQ_API_TOKEN}"
+            DQ_CORE_TOKEN: "${DQ_CORE_TOKEN}"
