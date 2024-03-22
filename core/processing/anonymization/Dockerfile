@@ -1,3 +1,25 @@
+##################################
+########## GRADLE BUILD ##########
+##################################
+
+FROM gradle:7.6.4-jdk17 AS build
+
+ARG DQ_API_TOKEN
+ARG DQ_CORE_TOKEN
+
+COPY --chown=gradle:gradle . /home/gradle/
+WORKDIR /home/gradle/
+
+RUN echo "dq_api_token=${DQ_API_TOKEN}" >> gradle.properties
+RUN echo "dq_core_token=${DQ_CORE_TOKEN}" >> gradle.properties
+
+RUN gradle build --no-daemon
+RUN gradle publish
+
+##################################
+############ APP COPY ############
+##################################
+
 FROM eclipse-temurin:17-jre-alpine
 
 LABEL maintainer="nicolo.bertozzi@linksfoundation.com"
@@ -6,7 +28,7 @@ LABEL org.label-schema.vendor = "LINKS Foundation, Turin, Italy"
 LABEL org.label-schema.description = "Data Quality Anonymization Module"
 
 WORKDIR /app
-COPY ./anonymization-1.0-SNAPSHOT.jar /app
+COPY --from=build /home/gradle/build/libs/anonymization-1.0-SNAPSHOT.jar /app/anonymization-1.0-SNAPSHOT.jar
 
 ENV KAFKA_BOOTSTRAP_SERVERS=""
 ENV KAFKA_SASL_USERNAME=""

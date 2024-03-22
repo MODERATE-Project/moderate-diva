@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
+    id 'maven-publish'
 }
 
 group 'com.linksfoundation.dq.core.connector'
@@ -18,9 +19,9 @@ ext {
     mqtt = '1.2.5'
 }
 
+
 repositories {
     mavenCentral()
-    gradlePluginPortal()
 
     /*
     maven {
@@ -36,11 +37,11 @@ repositories {
     }
 
     maven {
-        url "https://git.pertforge.ismb.it/api/v4/groups/212/-/packages/maven"
+        url "https://git.pertforge.ismb.it/api/v4/projects/885/packages/maven"
         name "GitLab"
         credentials(HttpHeaderCredentials) {
             name = 'Private-Token'
-            value = token
+            value = dq_api_token
         }
         authentication {
             header(HttpHeaderAuthentication)
@@ -70,4 +71,27 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            artifactId = 'mqtt'
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://git.pertforge.ismb.it/api/v4/projects/905/packages/maven"
+            name "GitLab"
+            credentials(HttpHeaderCredentials) {
+                name = 'Private-Token'
+                value = dq_core_token
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+    }
 }

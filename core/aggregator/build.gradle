@@ -44,7 +44,7 @@ repositories {
         name "GitLab"
         credentials(HttpHeaderCredentials) {
             name = 'Private-Token'
-            value = token
+            value = dq_api_token
         }
         authentication {
             header(HttpHeaderAuthentication)
@@ -90,18 +90,21 @@ configurations.all {
 publishing {
     publications {
         library(MavenPublication) {
+            artifactId = 'aggregator'
             from components.java
         }
     }
+
     repositories {
         maven {
-            name "nexus"
-            def releasesRepoUrl = 'https://nexus.repository-pert.ismb.it/repository/maven-releases/'
-            def snapshotsRepoUrl = 'https://nexus.repository-pert.ismb.it/repository/maven-snapshots/'
-            url project.version.endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username "$repoUser"
-                password "$repoPassword"
+            url "https://git.pertforge.ismb.it/api/v4/projects/905/packages/maven"
+            name "GitLab"
+            credentials(HttpHeaderCredentials) {
+                name = 'Private-Token'
+                value = dq_core_token
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
             }
         }
     }
