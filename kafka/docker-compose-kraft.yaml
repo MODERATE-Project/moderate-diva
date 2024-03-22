@@ -1,0 +1,41 @@
+version: "3.5"
+
+services:
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.3.3
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "39092:39092"
+    environment:
+      KAFKA_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092,CONTROLLER://kafka1:9093
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:SSL,BROKER:SSL,EXTERNAL:SASL_SSL
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+      KAFKA_SSL_KEYSTORE_FILENAME: keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: kafka-dq
+      KAFKA_SSL_TRUSTSTORE_FILENAME: truststore.jks
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: kafka-dq
+      #KAFKA_SSL_CLIENT_AUTH: 'required'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_PROCESS_ROLES: 'controller,broker'
+      KAFKA_CLUSTER_ID: '6pKOGDCjRJumCIzamlDnig'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093'
+      KAFKA_MESSAGE_MAX_BYTES: 200000000
+      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
+      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
+      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+      - ./secrets:/etc/kafka/secrets
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+volumes:
+  kafka1-data:
