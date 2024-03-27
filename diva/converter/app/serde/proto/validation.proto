@@ -1,0 +1,22 @@
+syntax = "proto3";
+package dq;
+
+option java_multiple_files = true;
+option java_package = "com.linksfoundation.dq.api.model";
+option java_outer_classname = "ValidationProto";
+
+message Validation {
+  uint64 ts = 1;
+  string validator = 2;
+  string type = 3;
+  string feature = 4;
+  Result result = 5;
+  bool optional = 6;
+  string description = 7;
+
+  enum Result {
+    VALID = 0;
+    FAIL = 1;
+  }
+}
+

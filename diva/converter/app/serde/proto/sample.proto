@@ -1,0 +1,31 @@
+syntax = "proto3";
+package dq;
+
+message Sample {
+  uint64 ts = 1;
+  States state = 2;
+  string key = 3;
+  map<string, FloatArray> float_data = 4;
+  map<string, StringArray> string_data = 5;
+  map<string, BoolArray> bool_data = 6;
+  string dataset = 7;
+  map<string, string> metadata = 8;
+
+  enum States {
+    RAW = 0;
+    NEW = 1;
+    VALID = 2;
+    FAIL = 3;
+    AGGREGATED = 4;
+    ANONYMIZED = 5;
+  }
+}
+message FloatArray {
+  repeated float element = 1;
+}
+message StringArray {
+  repeated string element = 1;
+}
+message BoolArray {
+  repeated bool element = 1;
+}
