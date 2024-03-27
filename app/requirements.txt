@@ -1,0 +1,12 @@
+aiokafka
+aiosignal
+anyio
+async-timeout
+asyncio
+grpcio
+grpcio-tools
+httptools
+kafka-python
+protobuf
+pydantic
+aiologger
