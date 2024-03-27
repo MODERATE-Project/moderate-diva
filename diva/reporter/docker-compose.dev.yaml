@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+   converter:
+      image: maestri.ismb.it:5050/moderate/reporter:1.0
+      build:
+         context: .
+         dockerfile: ./Dockerfile
