@@ -1,0 +1,16 @@
+*.pyc
+
+**/__py_cache__/**
+
+core/.vscode
+core/aggregator
+core/converter
+core/parmalat-*
+core/processing
+
+docker-*
+*.py
+validation.*
+send.sh
+scripts/**
+secrets/**
