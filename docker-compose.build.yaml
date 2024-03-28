@@ -1,0 +1,18 @@
+version: "3.9"
+name: moderate-diva-build
+
+services:
+      
+   converter:
+      container_name: moderate-converter
+      image: "${DOCKER_REGISTRY}/${DOCKER_PROJECT}/converter:${DOCKER_TAG}"
+      build:
+         context: ./diva/converter
+         dockerfile: ./Dockerfile
+
+   reporter:
+      container_name: moderate-reporter
+      image: "${DOCKER_REGISTRY}/${DOCKER_PROJECT}/reporter:${DOCKER_TAG}"
+      build:
+         context: ./diva/reporter
+         dockerfile: ./Dockerfile
