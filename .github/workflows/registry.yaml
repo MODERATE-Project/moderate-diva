@@ -29,6 +29,9 @@ jobs:
           dotenv -f .env
 
       - name: Build and push
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }} 
+          DOCKER_PROJECT: ${{ secrets.DOCKER_PROJECT }}
         run: |
           docker-compose -f docker-compose.build.yaml build
           docker-compose -f docker-compose.build.yaml push
