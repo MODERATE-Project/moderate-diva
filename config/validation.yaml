@@ -1,0 +1,6 @@
+name: "moderate-validator"
+rules:
+  - name: "domain"
+    feature: "consumi_teleriscaldamento"
+    specs:
+      min: 0
