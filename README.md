@@ -15,7 +15,7 @@ DIVA is designed to manage and process streaming data with a focus on low latenc
 The component utilizes a range of technologies, including Python, Java, GitLab, Docker, Spring, Project Reactor, and more.
 
 ## License
-Released under EPL 2.0. More info in [LICENCE](LICENSE.md)
+Released under EPL 2.0. More info in [LICENSE](LICENSE.md)
 
 ## Acknowledgements
 Acknowledgement of funding and support from the European Union’s Horizon Europe research and innovation programme.
