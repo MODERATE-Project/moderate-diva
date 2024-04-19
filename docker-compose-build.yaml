@@ -1,0 +1,7 @@
+services:
+   s3-connector:
+      image: maestri.ismb.it:5050/moderate/s3-connector:1.0
+      container_name: moderate-s3-connector
+      build:
+         context: .
+         dockerfile: ./Dockerfile

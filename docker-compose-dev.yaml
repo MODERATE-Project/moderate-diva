@@ -1,0 +1,16 @@
+services:
+   s3-connector:
+      image: maestri.ismb.it:5050/moderate/s3-connector:1.0
+      container_name: moderate-s3-connector
+      environment:
+         KAFKA_BOOTSTRAP_SERVERS: "csc-ai.csc-ai.csc:9092"
+         KAFKA_SASL_USERNAME: "kafka-dq"
+         KAFKA_SASL_PASSWORD: "KAFKA!dq!2023"
+         KAFKA_SSL_CAFILE: "/certs/ca.crt"
+         ASSET_URL: "https://api.gw.moderate.cloud/asset"
+         AUTH_URL: "https://api.gw.moderate.cloud/api/token"
+         AUTH_USER: ${AUTH_USER}
+         AUTH_PASS: ${AUTH_PASS}
+         POLLING_TIME: "60"
+      volumes:
+         - "./certs/ca.crt:/certs/ca.crt:ro"
