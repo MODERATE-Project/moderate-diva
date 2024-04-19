@@ -2,7 +2,14 @@ version: "3.9"
 name: moderate-diva-build
 
 services:
-      
+   
+   connector:
+      image: "${DOCKER_REGISTRY}/${DOCKER_PROJECT}/s3-connector:${DOCKER_TAG}"
+      container_name: moderate-connector
+      build:
+         context: ./diva/connector
+         dockerfile: ./Dockerfile
+
    converter:
       container_name: moderate-converter
       image: "${DOCKER_REGISTRY}/${DOCKER_PROJECT}/converter:${DOCKER_TAG}"

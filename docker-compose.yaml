@@ -1,0 +1,109 @@
+version: "3.9"
+name: moderate-diva-prod
+include:
+   - 'kafka/docker-compose-kafka.yaml'
+
+x-trust: &TRUSTSTORE_VOLUME
+   './kafka/secrets/kafka.truststore.jks:/kafka/truststore.jks:ro'
+
+x-kafka: &KAFKA_CONFIG
+   KAFKA_BOOTSTRAP_SERVERS: "kafka1:9092"
+   KAFKA_SASL_USERNAME: "kafka-dq"
+   KAFKA_SASL_PASSWORD: "KAFKA!dq!2023"
+   KAFKA_TRUSTSTORE_LOCATION: "/kafka/truststore.jks"
+   KAFKA_TRUSTSTORE_PASSWORD: "kafka-dq"
+   KAFKA_ENDPOINT_IDENTIFICATION: ""
+
+x-mqtt: &MQTT_CONFIG
+   MQTT_URI: "ssl://maestri.ismb.it:8883"
+   MQTT_CLIENT_ID: "moderate-connector"
+   MQTT_USERNAME: "maestri"
+   MQTT_PASSWORD: "maestri"
+   MQTT_QOS: 0
+   MQTT_INPUT_TOPIC: "moderate/lombardia"
+
+x-sample: &SAMPLE
+   'sample'
+x-connector: &CONNECTOR
+   'connector'
+x-validator: &VALIDATION
+   'validation'
+
+x-part0: &PARTITION
+   '0'
+
+x-dataset: &DATA
+   'moderate/lombardia'
+
+services:
+
+   connector:
+      container_name: moderate-connector
+      image: maestri.ismb.it:5050/dq-core/mqtt-connector:1.0
+      environment:
+         <<: [*MQTT_CONFIG, *KAFKA_CONFIG]
+         KAFKA_GROUP_ID: moderate-connector
+         SAMPLE_TOPIC: *CONNECTOR
+         SAMPLE_STATE: VALID
+      depends_on:
+         kafka1:
+            condition: service_healthy
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      
+   converter:
+      container_name: moderate-converter
+      image: "{DOCKER_REGISTRY}/${DOCKER_PROJECT}/converter:${DOCKER_TAG}"
+      environment:
+         <<: *KAFKA_CONFIG
+      depends_on:
+         kafka1:
+            condition: service_healthy
+
+   validation:
+      container_name: moderate-validator
+      image: maestri.ismb.it:5050/dq-core/validator:1.0
+      environment:
+         <<: *KAFKA_CONFIG
+         KAFKA_GROUP_ID: moderate-validator
+         DATASET_NAMES: *DATA
+         SAMPLE_TOPIC: *SAMPLE
+         SAMPLE_PARTITION: *PARTITION
+         VALIDATION_TOPIC: *VALIDATION
+         CONFIG_FILE: /config/validation.yaml
+      depends_on:
+         kafka1:
+            condition: service_healthy
+      volumes:
+      - *TRUSTSTORE_VOLUME
+      - "./config/validation.yaml:/config/validation.yaml:ro"
+
+   reporter:
+      container_name: moderate-reporter
+      image: maestri.ismb.it:5050/moderate/reporter:1.0
+      ports:
+         - 8000:8000
+      environment:
+         <<: *KAFKA_CONFIG
+         DATABASE_PATH: /data/report.db
+      depends_on:
+         kafka1:
+            condition: service_healthy
+      volumes:
+         - 'reporter_data:/data'
+
+   dashboard:
+      container_name: dashboard
+      image: grafana/grafana-oss
+      ports:
+      -  3000:3000
+      volumes:
+        -  'grafana-storage:/var/lib/grafana'
+
+volumes:
+   kafka_data1:
+      driver: local
+   reporter_data:
+      driver: local
+   grafana-storage:
+      driver: local

@@ -8,9 +8,5 @@ core/converter
 core/parmalat-*
 core/processing
 
-docker-*
 *.py
-validation.*
 send.sh
-scripts/**
-secrets/**
