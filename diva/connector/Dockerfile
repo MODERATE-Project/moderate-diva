@@ -6,7 +6,7 @@ LABEL org.label-schema.vendor = "LINKS Foundation, Turin, Italy"
 LABEL org.label-schema.description = "S3 Connector Module"
 
 ENV PYTHONUNBUFFERED 1
-ENV POETRY_VERSION 1.1.11
+ENV POETRY_VERSION 1.8.2
 
 RUN pip install "poetry==$POETRY_VERSION"
 

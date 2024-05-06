@@ -7,9 +7,9 @@ license = "Eclipse Public License - v 2.0"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pandas = "pyarrow"
-asyncio = "aiokafka"
-aiologger = "functools"
+pandas = "^2.2.1"
+asyncio = "^3.4.3"
+aiologger = "^0.7.0"
 aiokafka = "^0.10.0"
 pydantic = "^2.6.4"
 protobuf = "^5.26.1"
